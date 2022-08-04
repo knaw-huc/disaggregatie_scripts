@@ -46,14 +46,10 @@ if __name__ == '__main__':
             stderr(vErr)
             stderr(f)
 
-# lees 'Dummy links.txt'
-# per row (SHORT_ID) neem elke column
-# neem gegevens uit het betreffende bestand (PRIMARY_UNIT)
-# maak row: Plaats, Code, Jaartal(len)
-
     f = f'{inputdir}/Dummy links.txt'
     links = pd.read_csv(f, sep='\t')
     links_cols = links.columns
+
     year_cols = {}
     for l in links_cols:
         try:
@@ -78,13 +74,31 @@ if __name__ == '__main__':
                 res = res.iloc[0]['PRIMARY_UNIT']
                 this_row[year] = res
             except Exception as err:
-                stderr(f'err: {err}')
+#                stderr(f'err: {err}')
                 pass
         data.append(this_row)
         teller += 1
 
     new_df = pd.DataFrame(data, columns=['Code'] + years)
-    new_df.to_excel('test_res.xlsx')
+
+
+    for col in new_df[years]:
+        colObj = new_df[col]
+        stderr(colObj.__class__)
+        rem_last = False
+        for i in range(len(colObj)):
+            if i>0:
+                if colObj[i]==colObj[i-1]:
+                    colObj[i-1] = None
+                    rem_last = True
+                else:
+                    if rem_last:
+                        colObj[i-1] = None
+                        rem_last = False
+        if rem_last:
+            # also remove last in series (if equal to previous)
+            colObj[len(colObj)-1] = None
+    new_df.to_excel('test_res_2.xlsx')
 
     end_prog(0)
     
