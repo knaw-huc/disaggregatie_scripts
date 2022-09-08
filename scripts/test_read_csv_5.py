@@ -174,7 +174,8 @@ def recalculate(data):
                     row[year] = calculate(get_data(year,row[year]),row[best_year],best_year_col)
                 except:
                     pass
-    stderr(data)
+    # after this, information is lost on which rows need to be calculated on basis of their surface
+    # so, the calculation has to be done here
 
 def end_prog(code=0):
     if code!=0:
@@ -301,7 +302,6 @@ if __name__ == '__main__':
 
     selection = make_selection(data,'census_BR1374a_147')
     recalculate(selection)
-    stderr(selection)
     new_df = pd.DataFrame(selection, columns=['Code'] + years)
 
     new_df.to_excel('test_res_6.xlsx')
