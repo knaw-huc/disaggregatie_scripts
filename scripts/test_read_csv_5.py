@@ -4,6 +4,7 @@ import csv
 #import psycopg2
 #from config import config
 from collections import Counter
+import collections
 from datetime import datetime
 import glob
 import math
@@ -12,10 +13,41 @@ import os.path
 import re
 import sys
 import pandas as pd
+import pprint as pp
 
 # global variables
 all_data = {}
 census_list = {}
+surfaces = {}
+id_census = {}
+census_id = {}
+
+def create_link_dict(f):
+    with open(f, newline='') as csvfile:
+        reader = csv.DictReader(csvfile,delimiter='\t')
+        headers = reader.fieldnames
+        stderr(headers)
+#        del(headers[0])
+#        stderr(headers)
+        for row in reader:
+            short_id = row['SHORT_ID']
+            id_census[short_id] = []
+            for key in headers:
+                if key!='SHORT_ID' and row[key]!='':
+                    if row[key] in census_id:
+                        census_id[row[key]].append(short_id)
+                    else:
+                        census_id[row[key]] = [short_id]
+                    id_census[short_id].append(row[key])
+    print('id_census:') 
+    pp.pprint(id_census)
+    print('\n\ncensus_id:') 
+    pp.pprint(census_id)
+    print('\n')
+#    for k,v in census_id.items():
+#        if len(v)==1:
+#            print(f'{k}: {v}')
+    return
 
 def check_row(row):
     num_codes = 0
@@ -108,24 +140,28 @@ def data_aanpassen(row,saved_rows,data,col_dict,check_num):
             cell = row[year]
             try:
                 if cell.startswith('census'):
-                    df = all_data[census_list[year]]
-                    res = df.loc[df['UUID'] == cell]
-                    res = calculate(res.iloc[0]['PRIMARY_UNIT'],row[converted[0]],totals[converted[0]])
+                    #df = all_data[census_list[year]]
+                    #res = df.loc[df['UUID'] == cell]
+                    res = calculate(get_data(year,cell), row[converted[0]],totals[converted[0]])
                     row[year] = res
             except Exception as err:
                 stderr(f'err: {err}')
                 pass
 
 def get_data(year,cell):
-#    stderr(f'cell: {cell}')
-#    stderr(f'census_list: {census_list}')
-#    stderr(f'len(all_data): {len(all_data)}')
-#    stderr(f'census_list(year): {census_list[year]}')
     df = all_data[census_list[year]]
-#    stderr(f'df: {df}')
     res = df.loc[df['UUID'] == cell]
-#    stderr(f'res: {res}')
-    res = res.iloc[0]['PRIMARY_UNIT']
+    try:
+#        stderr(f'census_list[{year}]: {census_list[year]}')
+#        stderr(f'res: {res}')
+        res = res.iloc[0]['PRIMARY_UNIT']
+    except Exception as err:
+        if not isinstance(cell, str) and math.isnan(cell):
+            return cell
+        stderr(f'year: {year}')
+        stderr(f'cell: {cell}')
+        stderr(f'err: {err}')
+        end_prog(1)
     return res
 
 
@@ -151,18 +187,24 @@ def recalculate(data):
         if count>best_count:
             best_count = count
             best_year = year
-        stderr(f'{year}: {count}')
-    stderr(f'best_year: {best_year}')
+        #stderr(f'{year}: {count}')
+    #stderr(f'best_year: {best_year}')
     best_year_col = 0
     add_once = 0
+    calc_surf = []
+    added_surf = 0.0
     for row in data:
         if type(row[best_year]) != np.int64:
             row[best_year] = get_data(best_year,row[best_year])
             add_once = row[best_year]
+            calc_surf.append(row['Code'])
+            added_surf += surfaces[row['Code']]
         else:
             best_year_col += row[best_year]
     best_year_col += add_once
     stderr(f'total: {best_year_col}')
+    stderr(f'calc cols: {calc_surf}')
+    stderr(f'added surf: {added_surf}')
     for year in years:
         if year==best_year:
             continue
@@ -176,6 +218,26 @@ def recalculate(data):
                     pass
     # after this, information is lost on which rows need to be calculated on basis of their surface
     # so, the calculation has to be done here
+    for year in years:
+        for row in data:
+            if row['Code'] in calc_surf:
+                try:
+                    row[year] = calculate(float(row[year]), surfaces[row['Code']], added_surf)
+                except Exception as err:
+                    stderr(f'error? {err}') 
+                    pass
+
+def get_year(k):
+    year = re.search(r'(\d\d\d\d)',k).group(1)
+    return year
+
+def get_value(year,cell):
+    val = get_data(year,cell)
+    return val
+
+def make_excel(table,output='test_res_7.xlsx'):
+    new_df = pd.DataFrame(table, columns=['Code'] + years)
+    new_df.to_excel(output)
 
 def end_prog(code=0):
     if code!=0:
@@ -211,10 +273,183 @@ if __name__ == '__main__':
             df.to_excel(basename)
             stderr(vErr)
             stderr(f)
+    years = sorted(census_list.keys())
 
     f = f'{inputdir}/Dummy links.txt'
     links = pd.read_csv(f, sep='\t')
     links_cols = links.columns
+
+    new_res = collections.defaultdict(dict)  
+
+#   the simple things: just one value on one area
+    create_link_dict(f)
+    for k,v in census_id.items():
+        if len(v)==1:
+#            if v[0] not in new_res:
+#                new_res[v[0]] = {}
+            #stderr(f'k: {k}: {v}')
+            year = get_year(k)
+            val = get_value(year,k)
+            new_res[v[0]][year] = val
+    print('\n')
+    pp.pprint(new_res)
+
+#   find census met meerdere areas en kijk dan of die areas allemaal naar de zelfde censussen verwijzen
+
+    for area,values in id_census.items():
+        skip = False
+#        if not area.startswith('BR0050'):
+#            continue
+        #stderr(f'area: {area}')
+        save = []
+        save_uniq = []
+        for census in values:
+#            stderr(census)
+            if len(census_id[census])>1:
+                if len(save)==0:
+                    save = census_id[census]
+                else:
+                    if save!=census_id[census]:
+                        skip = True
+            else:
+                if len(save)>0:
+                    if census_id[census][0] not in save:
+                        skip = True
+                    else:
+                        y = re.search(r'(\d\d\d\d)',census).group(1)
+                        try:
+                            exists = new_res[area][y]
+                            save_uniq.append(census)
+                        except:
+                            pass
+            #for v in census_id[census]:
+            #    stderr(f'{v}')
+        if len(save_uniq)==0 or len(save_uniq)==len(new_res[area]):
+            skip = True
+        if not skip:
+            stderr(f'compute: {area}')
+            stderr(f'save: {save}')
+            stderr(f'save_uniq: {save_uniq}')
+            part = 'census_' + save_uniq[0].split('_')[1]
+            #stderr(f'part: {part}')
+            c_list = []
+            for area in save:
+                for cens in id_census[area]:
+                    if re.search(part, cens):
+                        c_list.append(cens)
+                        #stderr(id_census[area])
+            uniq_year = re.search(r'(\d\d\d\d)',save_uniq[0]).group(1)
+            ref_total = 0.0
+            refs = {}
+            try:
+                for area in save:
+                    refs[area] = float(new_res[area][uniq_year])
+                    ref_total += float(new_res[area][uniq_year])
+            except:
+                continue
+            #stderr(refs)
+            #stderr(ref_total)
+            for area in save:
+                #stderr(f'area: {area}')
+                #stderr(f'years: {new_res[area]}')
+                #for y in new_res[area]:
+                    #stderr(f'y: {y} ({y.__class__}) - {new_res[area][y]}')
+                for cens in id_census[area]:
+                    #stderr(f'cens: {cens}')
+                    y = re.search(r'(\d\d\d\d)',cens).group(1)
+                    #stderr(f'year: {y} ({y.__class__})')
+                    try:
+                        #stderr(f'try: {new_res[area][y]}')
+                        exists = new_res[area][y]
+                        #stderr(f'exist: {exists}')
+                    except:
+                        stderr('new one')
+                        stderr(f'area: {area}')
+                        stderr(f'cens: {cens}')
+                        val = get_value(y,cens)
+                        #stderr(f'val: {val}')
+                        calc_val = calculate(val,refs[area],ref_total)
+                        #stderr(f'calc_val: {calc_val}')
+                        new_res[area][y] = calc_val
+
+
+    '''
+
+    end_prog(1)
+
+
+    for key,values in census_id.items():
+        debug = False
+        skip = False
+        if len(values)>1:
+            save = []
+            single_found = False
+            for area in values:
+                if area.startswith('BR0050'):
+                    debug = True
+                if debug:
+                    stderr(id_census[area])
+                if len(save)==0:
+                    save = id_census[area]
+                else:
+                    if save!=id_census[area]:
+                        if debug:
+                            stderr('diff')
+                        for census in (set(save) - set(id_census[area])):
+                            if not len(census_id[census])==1:
+                                skip = True
+                            else:
+                                single_found = True
+                    else:
+                        if debug:
+                            stderr('no diff')
+        else:
+            continue
+        if not skip and single_found:
+            #pass
+            if not debug:
+                continue
+            stderr('found one?')
+            stderr(f'{key}: {values}')
+
+
+#   try the find those areas that belong to one census and are not split in an other census
+#   i.e. area_code A contains census X,Y,Z and census X,Y,Z only contain area_code A
+    for key,values in census_id.items():
+        if len(values)==1:
+            continue
+        skip = False
+        for area in values:
+            if len(id_census[area])>1:
+                skip = True
+                break
+        if not skip:
+            stderr(f'deze: {key}: {values} ?')
+        
+
+'''
+
+
+    build_table = []
+    for key in id_census.keys():
+    #for key in new_res.keys():
+        new_row = [key]
+        if not key in new_res.keys():
+            build_table.append(new_row)
+            continue
+        for year in years:
+            if year in new_res[key]:
+                new_row.append(new_res[key][year])
+            else:
+                new_row.append(' ')
+        build_table.append(new_row)
+
+    make_excel(build_table)
+    new_df = pd.DataFrame(build_table, columns=['Code'] + years)
+    new_df.to_excel('test_res_8.xlsx')
+
+    end_prog(1)
+
 
     year_cols = {}
     for l in links_cols:
@@ -224,7 +459,12 @@ if __name__ == '__main__':
         except:
             pass
 
-    years = sorted(census_list.keys())
+    f = f'{inputdir}/Dummy km2.txt'
+    with open(f, newline='') as csvfile:
+        reader = csv.DictReader(csvfile,delimiter='\t')
+        for row in reader:
+            surfaces[row['SHORT_ID']] = float(row['KM2'])
+
     unique_codes = []
     for year in years:
         col = year_cols[year]
@@ -300,7 +540,8 @@ if __name__ == '__main__':
 
 #    new_df = pd.DataFrame(data, columns=['Code'] + years)
 
-    selection = make_selection(data,'census_BR1374a_147')
+#    selection = make_selection(data,'census_BR1374a_147')
+    selection = data
     recalculate(selection)
     new_df = pd.DataFrame(selection, columns=['Code'] + years)
 
