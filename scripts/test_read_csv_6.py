@@ -21,6 +21,7 @@ census_list = {}
 surfaces = {}
 id_census = {}
 census_id = {}
+new_res = collections.defaultdict(dict)  
 
 def create_link_dict(f):
     with open(f, newline='') as csvfile:
@@ -258,6 +259,9 @@ def split_population(census,cc,areas):
         stderr(f'new_val: {new_val}')
         add_value(areas[i],year,new_val)
 
+def remainder():
+    pass
+
 
 def add_value(area,year,val):
     new_res[area][year] = val
@@ -275,6 +279,34 @@ def get_census_value(census):
     val = get_data(year,census)
     return val
 
+def recalc(area_num):
+    for k,v in census_id.items():
+        if len(v)==area_num:
+            count = 0
+            area_split = 0
+            cc = []
+#            if v[0] not in new_res:
+#                new_res[v[0]] = {}
+            stderr(f'k: {k}: {v}')
+            for c in v:
+                for c2 in id_census[c]:
+                    stderr(f'{c}: {c2}')
+                    if c2!=k:
+                        if len(census_id[c2])==1:
+                            count +=1
+                            cc.append(c2)
+                        elif len(census_id[c2])==area_num:
+                            area_split +=1
+                    else:
+                        area_split += 1
+            if count==area_num:
+                stderr('split on population')
+                split_population(k,cc,v)
+            elif area_split==area_num:
+                stderr('split on area')
+                split_on_area(k,v)
+
+
 def make_excel(table,output='test_res_7.xlsx'):
     new_df = pd.DataFrame(table, columns=['Code'] + years)
     new_df.to_excel(output)
@@ -287,8 +319,8 @@ def end_prog(code=0):
     stderr(datetime.today().strftime(f"einde: %H:%M:%S{code_str}"))
     sys.exit(code)
 
-def stderr(text):
-    sys.stderr.write("{}\n".format(text))
+def stderr(text,nl='\n'):
+    sys.stderr.write(f"{text}{nl}")
 
 if __name__ == '__main__':
     stderr(datetime.today().strftime("start: %H:%M:%S"))
@@ -325,7 +357,6 @@ if __name__ == '__main__':
     links = pd.read_csv(f, sep='\t')
     links_cols = links.columns
 
-    new_res = collections.defaultdict(dict)  
 
     f = f'{inputdir}/Dummy links.txt'
     create_link_dict(f)
@@ -337,13 +368,32 @@ if __name__ == '__main__':
 #                new_res[v[0]] = {}
             #stderr(f'k: {k}: {v}')
             val = get_census_value(k)
-            new_res[v[0]][year] = val
-    print('\n')
-    pp.pprint(new_res)
+            add_value(v[0],get_year(k),val)
 
+    lengtes = []
+    for v in census_id.values():
+        if not len(v) in lengtes:
+            lengtes.append(len(v))
+    lengtes.sort()
+    stderr(lengtes)
+    res = max(len(elem) for elem in census_id.values())
+    stderr(f'res: {res}')
+    for i in range(2,res+1):
+        stderr(i,' ')
+    stderr(' ')
 
 #   two areas
     area_num = 2
+    for area_num in range(2,res+1):
+        recalc(area_num)
+
+    # calculate remainder on basis of surface
+    remainder()
+
+    print('\n')
+    pp.pprint(new_res)
+
+    '''
     for k,v in census_id.items():
         if len(v)==area_num:
             count = 0
@@ -374,6 +424,7 @@ if __name__ == '__main__':
 #            year = get_year(k)
 #            val = get_value(year,k)
 #            new_res[v[0]][year] = val
+'''
     print('\n')
     pp.pprint(new_res)
 
