@@ -11,7 +11,7 @@ class AreaCollection:
 
     def add_census_to_area(self,area_code,census_code):
         if self.has_area(area_code):
-            get_area(area_code).add_census_code(census_code)
+            self.get_area(area_code).add_census_code(census_code)
 
     def get_area(self,area_code):
         return self._area_coll[area_code]

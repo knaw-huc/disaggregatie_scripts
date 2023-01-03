@@ -39,11 +39,11 @@ def read_census(inputfile):
 def create_link_dict(f):
     areas = AreaCollection()
     year_header = {}
-    #all_censuses = collections.defaultdict(dict)
     all_censuses = {}
     with open(f, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         headers = reader.fieldnames
+        #headers.remove('SHORT_ID')
         for header in headers:
             if header!='SHORT_ID':
                 year_header[calc.find_year(header)] = header
@@ -54,11 +54,12 @@ def create_link_dict(f):
             area_id = row['SHORT_ID']
             area = Area(area_id)
             areas.add_area(area)
-            for year in years:
-                census_code = row[year_header[year]]
-                if census_code != '':
-                    #area.add_census_code(census_code)
-                    all_censuses[year].add_census(Census(census_code,0,area))
+            for col_head in headers:
+                if col_head!='SHORT_ID':
+                    census_code = row[col_head]
+                    if census_code != '':
+                        areas.add_census_to_area(area_id,census_code)
+                        all_censuses[year].add_census(Census(census_code,0,area_id))
     return areas,all_censuses,year_header,years
 
 

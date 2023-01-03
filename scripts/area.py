@@ -7,7 +7,10 @@ class Area:
         self._area_code = area_code
         self._surface = float(surface)
         self._population = float(population)
-        self._census_list = census_list
+        self._census_list = []
+        for c in census_list:
+            self._census_list.append(c)
+        self._census_population = {}
 
     def __str__(self):
         return f"area code: {self._area_code} - surface: {self._surface} - population: {self._population}"
@@ -22,11 +25,17 @@ class Area:
     def get_census_list(self):
         return self._census_list
 
+    def get_census_population(self):
+        return self._census_population
+
     def get_population(self):
         return self._population
 
     def get_surface(self):
         return self._surface
+
+    def set_census_population(self,census_code,population_count):
+        self._census_population[census_code] = population_count
 
     def set_population(self,population):
         self._population = population
