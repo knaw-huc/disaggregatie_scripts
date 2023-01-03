@@ -2,8 +2,10 @@
 from area import Area
 import calculations as calc
 from census import Census
+from censuscollection import CensusCollection
 import collections
 import csv
+import os.path
 
 
 def read_surfaces(filename):
@@ -18,16 +20,18 @@ def read_surfaces(filename):
 
 
 def read_census(inputfile):
-    all_census_list = {}
+    basename = os.path.basename(inputfile).split('.')[0]
+    coll_name = basename
+    all_census = CensusCollection(coll_name)
     with open(inputfile, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         teller = 0
         for row in reader:
             try:
-                census_list[row['UUID']] = float(row['PRIMARY_UNIT'])
+                all_census.add(Census(row['UUID'],float(row['PRIMARY_UNIT'])))
             except:
                 pass
-    return census_list
+    return all_census
 
 
 def create_link_dict(f):

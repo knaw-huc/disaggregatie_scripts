@@ -3,6 +3,7 @@
 from area import Area
 import calculations as calc
 from census import Census
+from censuscollection import CensusCollection
 import readandwrite as rw
 import pprint as pp
 import unittest
@@ -29,7 +30,7 @@ class TestReadWrite(unittest.TestCase):
         header = 'BR1374a'
         inputfile = f'{inputdir}/census_{header}.txt'
         res = rw.read_census(inputfile)
-        self.assertEqual(len(res),617)
+        self.assertEqual(res.getNumberOfCensus(),617)
 
 class TestCalculations(unittest.TestCase):
 
@@ -55,9 +56,18 @@ class TestArea(unittest.TestCase):
 class TestCensus(unittest.TestCase):
 
     def test_class_census(self):
-        c = Census('xyz','BR10000')
+        c = Census('xyz',100,'BR10000')
         self.assertEqual(c.get_census_code(),'xyz')
-        self.assertEqual(c.get_area(),'BR10000')
+        self.assertEqual(c.get_areas(),['BR10000'])
+        self.assertEqual(c.get_population(),100)
+
+class TestCensusCollection(unittest.TestCase):
+
+    def test_class_censuscollection(self):
+        c = CensusCollection('XY-1456a')
+        c.add_census(Census('xyz',22,'BB101'))
+        self.assertEqual(c.getNumberOfCensus(),1)
+
 
 if __name__ == '__main__':
     unittest.main()

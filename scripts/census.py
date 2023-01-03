@@ -2,20 +2,26 @@
 
 class Census:
 
-    def __init__(self,census_code,area,area_name=''):
+    def __init__(self,census_code,population,areas = []):
         self._census_code = census_code
-        self._area = area
-        self._area_name = area_name
+        self._population = population
+        if isinstance(areas,list):
+            self._areas = areas
+        else:
+            self._areas = [areas]
 
     def get_census_code(self):
         return self._census_code
 
-    def get_area(self):
-        return self._area
+    def get_areas(self):
+        return self._areas
 
-    def get_area_name(self):
-        return this._area_name
+    def add_area(self,area):
+        self._areas.append(area)
 
-    def set_area_name(self,area_name):
-        this._area_name = area_name
+    def has_area(self,area_code):
+        return area_code in self._areas
+
+    def __str__(self):
+        return f"{self._census_code} - {self._population} - {self._areas}"
 
