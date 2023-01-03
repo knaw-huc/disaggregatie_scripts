@@ -2,9 +2,9 @@
 
 class Census:
 
-    def __init__(self,census_code,population,areas = []):
+    def __init__(self,census_code,counted,areas = []):
         self._census_code = census_code
-        self._population = population
+        self._counted = float(counted)
         if isinstance(areas,list):
             self._areas = areas
         else:
@@ -22,9 +22,9 @@ class Census:
     def has_area(self,area_code):
         return area_code in self._areas
 
-    def get_population(self):
-        return self._population
+    def get_counted(self):
+        return self._counted
 
     def __str__(self):
-        return f"{self._census_code} - {self._population} - {self._areas}"
+        return f"census code: {self._census_code} -  counted: {self._counted} - areas: {self._areas}"
 

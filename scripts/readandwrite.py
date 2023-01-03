@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from area import Area
+from areacollection import AreaCollection
 import calculations as calc
 from census import Census
 from censuscollection import CensusCollection
@@ -8,19 +9,18 @@ import csv
 import os.path
 
 
-def read_surfaces(filename,areas={}):
+def read_surfaces(filename,areas=AreaCollection()):
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         for row in reader:
             id = row['SHORT_ID']
             surface = row['KM2']
-            try:
-                areas[id].set_surface(surface)
-            except:
-                pass
+            if areas.has_area(id):
+                areas.get_area(id).set_surface(surface)
+            else:
                 # the file with areas and their surface contains much more
                 # areas than the other files
-                areas[id] = Area(id,surface)
+                areas.add_area(Area(id,surface))
     return areas
 
 
@@ -37,7 +37,7 @@ def read_census(inputfile):
 
 
 def create_link_dict(f):
-    areas = {}
+    areas = AreaCollection()
     year_header = {}
     #all_censuses = collections.defaultdict(dict)
     all_censuses = {}
@@ -53,10 +53,12 @@ def create_link_dict(f):
         for row in reader:
             area_id = row['SHORT_ID']
             area = Area(area_id)
-            areas[area_id] = area
+            areas.add_area(area)
             for year in years:
                 census_code = row[year_header[year]]
-                all_censuses[year].add_census(Census(census_code,area))
+                if census_code != '':
+                    #area.add_census_code(census_code)
+                    all_censuses[year].add_census(Census(census_code,0,area))
     return areas,all_censuses,year_header,years
 
 

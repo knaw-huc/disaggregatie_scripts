@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import calculations as calc
+from census import Census
 import collections
 
 class CensusCollection:
@@ -12,19 +13,22 @@ class CensusCollection:
     def add_census(self,census):
         self._census_coll[census.get_census_code()] = census
 
-    def get_census_code(self):
+    def get_census_coll_code(self):
         return self._census_coll_code
 
     def get_year(self):
         return self._year
 
     def get_census(self,census_code):
-        return _censes_coll[census_code]
+        return self._census_coll[census_code]
+
+    def get_census_coll(self):
+        return self._census_coll
 
     def has_census(self,census_code):
         return census_code in self._census_coll
 
-    def getNumberOfCensus(self):
+    def get_number_of_census(self):
         return len(self._census_coll.keys())
 
     def __str__(self):
