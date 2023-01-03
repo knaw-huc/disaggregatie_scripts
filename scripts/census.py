@@ -22,6 +22,9 @@ class Census:
     def has_area(self,area_code):
         return area_code in self._areas
 
+    def get_population(self):
+        return self._population
+
     def __str__(self):
         return f"{self._census_code} - {self._population} - {self._areas}"
 

@@ -32,7 +32,7 @@ class TestReadWrite(unittest.TestCase):
         res = rw.read_census(inputfile)
         self.assertEqual(res.getNumberOfCensus(),617)
 
-class TestCalculations(unittest.TestCase):
+class TesTCalculations(unittest.TestCase):
 
     def test_distances(self):
         res = calc.calc_dist(['BR1374a','BR1437a','BR1464a','BR1468a','BR1472a','BR1480a','BR1492a','BR1496a','BR1526a','ME1544a','NED1795a','BEL1800a'])
@@ -43,7 +43,7 @@ class TestCalculations(unittest.TestCase):
         res = calc.find_year('BR1496a')
         self.assertEqual(res,1496)
 
-class TestArea(unittest.TestCase):
+class TetArea(unittest.TestCase):
 
     def test_class_area(self):
         a = Area('X',1)

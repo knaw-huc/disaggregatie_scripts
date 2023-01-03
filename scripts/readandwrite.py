@@ -27,13 +27,10 @@ def read_census(inputfile):
         reader = csv.DictReader(csvfile,delimiter='\t')
         teller = 0
         for row in reader:
-            try:
-                all_census.add(Census(row['UUID'],float(row['PRIMARY_UNIT'])))
-            except:
-                pass
+            all_census.add_census(Census(row['UUID'],float(row['PRIMARY_UNIT'])))
     return all_census
 
-
+# aanpassen aan censuscollection
 def create_link_dict(f):
     areas = []
     year_header = {}
@@ -88,9 +85,9 @@ def make_xlsx(columns,data,new_res,uitvoer='default.xlsx',small=False):
             columns.append(f'stat')
             columns.append(f'census')
             columns.append(f'orig')
-    stderr(len(columns))
-    stderr(len(new_rows[0]))
-    stderr(new_rows[0])
+    print(len(columns))
+    print(len(new_rows[0]))
+    print(new_rows[0])
     new_df = pd.DataFrame(new_rows, columns=columns)
     new_df.to_excel(uitvoer)
 
