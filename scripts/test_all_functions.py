@@ -32,7 +32,7 @@ class TestReadWrite(unittest.TestCase):
         res = rw.read_census(inputfile)
         self.assertEqual(res.getNumberOfCensus(),617)
 
-class TesTCalculations(unittest.TestCase):
+class TestCalculations(unittest.TestCase):
 
     def test_distances(self):
         res = calc.calc_dist(['BR1374a','BR1437a','BR1464a','BR1468a','BR1472a','BR1480a','BR1492a','BR1496a','BR1526a','ME1544a','NED1795a','BEL1800a'])
@@ -43,7 +43,7 @@ class TesTCalculations(unittest.TestCase):
         res = calc.find_year('BR1496a')
         self.assertEqual(res,1496)
 
-class TetArea(unittest.TestCase):
+class TestArea(unittest.TestCase):
 
     def test_class_area(self):
         a = Area('X',1)
@@ -52,6 +52,7 @@ class TetArea(unittest.TestCase):
         self.assertEqual(a.get_surface(),1.0)
         self.assertEqual(b.get_area(),'Z')
         self.assertEqual(b.get_surface(),2.0)
+        self.assertEqual(f'{b}','Z: 2.0')
 
 class TestCensus(unittest.TestCase):
 
@@ -60,6 +61,7 @@ class TestCensus(unittest.TestCase):
         self.assertEqual(c.get_census_code(),'xyz')
         self.assertEqual(c.get_areas(),['BR10000'])
         self.assertEqual(c.get_population(),100)
+        self.assertEqual(f'{c}',"xyz - 100 - ['BR10000']")
 
 class TestCensusCollection(unittest.TestCase):
 

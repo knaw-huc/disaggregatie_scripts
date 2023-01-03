@@ -8,14 +8,19 @@ import csv
 import os.path
 
 
-def read_surfaces(filename):
-    areas = {}
+def read_surfaces(filename,areas={}):
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         for row in reader:
             id = row['SHORT_ID']
             surface = row['KM2']
-            areas[id] = Area(id,surface)
+            try:
+                areas[id].set_surface(surface)
+            except:
+                pass
+                # the file with areas and their surface contains much more
+                # areas than the other files
+                areas[id] = Area(id,surface)
     return areas
 
 
@@ -30,12 +35,12 @@ def read_census(inputfile):
             all_census.add_census(Census(row['UUID'],float(row['PRIMARY_UNIT'])))
     return all_census
 
-# aanpassen aan censuscollection
+
 def create_link_dict(f):
-    areas = []
+    areas = {}
     year_header = {}
+    #all_censuses = collections.defaultdict(dict)
     all_censuses = {}
-    all_censuses = collections.defaultdict(dict)
     with open(f, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         headers = reader.fieldnames
@@ -44,13 +49,14 @@ def create_link_dict(f):
                 year_header[calc.find_year(header)] = header
         years = sorted(year_header.keys())
         for year in years:
-            all_censuses[year] = []
+            all_censuses[year] = CensusCollection(year_header[year])
         for row in reader:
-            area = row['SHORT_ID']
-            areas.append(area)
+            area_id = row['SHORT_ID']
+            area = Area(area_id)
+            areas[area_id] = area
             for year in years:
                 census_code = row[year_header[year]]
-                all_censuses[year].append(Census(census_code,area))
+                all_censuses[year].add_census(Census(census_code,area))
     return areas,all_censuses,year_header,years
 
 
