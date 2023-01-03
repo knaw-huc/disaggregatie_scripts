@@ -18,10 +18,11 @@ class TestReadWrite(unittest.TestCase):
     def test_read_links(self):
         inputdir = "Dummy_dataset_disaggregatie"
         f = f'{inputdir}/Dummy links.txt'
-        a,b,c = rw.create_link_dict(f)
-        self.assertEqual(len(a),12)
+        a,b,c,d = rw.create_link_dict(f)
+        self.assertEqual(len(a),1189)
         self.assertEqual(len(b),12)
         self.assertEqual(len(c),12)
+        self.assertEqual(len(d),12)
 
     def test_read_census(self):
         inputdir = "Dummy_dataset_disaggregatie"
