@@ -2,13 +2,10 @@
 
 class Census:
 
-    def __init__(self,census_code,counted,areas = []):
+    def __init__(self,census_code,counted):
         self._census_code = census_code
         self._counted = float(counted)
-        if isinstance(areas,list):
-            self._areas = areas
-        else:
-            self._areas = [areas]
+        self._areas = []
 
     def get_census_code(self):
         return self._census_code

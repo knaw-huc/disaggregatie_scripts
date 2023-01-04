@@ -24,10 +24,10 @@ def read_surfaces(filename,areas=AreaCollection()):
     return areas
 
 
-def read_census(inputfile):
+def read_census(inputfile,all_census = CensusCollection()):
     basename = os.path.basename(inputfile).split('.')[0]
-    coll_name = basename
-    all_census = CensusCollection(coll_name)
+    #coll_name = basename
+    #all_census = CensusCollection(coll_name)
     with open(inputfile, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         teller = 0
@@ -39,7 +39,7 @@ def read_census(inputfile):
 def create_link_dict(f):
     areas = AreaCollection()
     year_header = {}
-    all_censuses = {}
+    all_censuses = CensusCollection()
     with open(f, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         headers = reader.fieldnames
@@ -48,8 +48,8 @@ def create_link_dict(f):
             if header!='SHORT_ID':
                 year_header[calc.find_year(header)] = header
         years = sorted(year_header.keys())
-        for year in years:
-            all_censuses[year] = CensusCollection(year_header[year])
+#        for year in years:
+#            all_censuses = CensusCollection(year_header[year])
         for row in reader:
             area_id = row['SHORT_ID']
             area = Area(area_id)
@@ -59,7 +59,12 @@ def create_link_dict(f):
                     census_code = row[col_head]
                     if census_code != '':
                         areas.add_census_to_area(area_id,census_code)
-                        all_censuses[year].add_census(Census(census_code,0,area_id))
+                        if all_censuses.has_census(census_code):
+                            census = all_censuses.get_census(census_code)
+                        else:
+                            census = Census(census_code,0)
+                        census.add_area(area_id)
+                        all_censuses.add_census(census)
     return areas,all_censuses,year_header,years
 
 

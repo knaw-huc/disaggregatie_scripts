@@ -22,7 +22,7 @@ class TestReadWrite(unittest.TestCase):
         f = f'{inputdir}/Dummy links.txt'
         areas,all_census,c,d = rw.create_link_dict(f)
         self.assertEqual(areas.get_number_of_areas(),1189)
-        self.assertEqual(len(all_census),12)
+        self.assertEqual(all_census.get_number_of_census(),5739)
         self.assertEqual(len(c),12)
         self.assertEqual(len(d),12)
 
@@ -67,17 +67,18 @@ class TestArea(unittest.TestCase):
 class TestCensus(unittest.TestCase):
 
     def test_class_census(self):
-        c = Census('xyz',100,'BR10000')
+        c = Census('xyz',100)
         self.assertEqual(c.get_census_code(),'xyz')
-        self.assertEqual(c.get_areas(),['BR10000'])
         self.assertEqual(c.get_counted(),100)
+        c.add_area('BR10000')
+        self.assertEqual(c.get_areas(),['BR10000'])
         self.assertEqual(f'{c}',"census code: xyz -  counted: 100.0 - areas: ['BR10000']")
 
 class TestCensusCollection(unittest.TestCase):
 
     def test_class_censuscollection(self):
-        c = CensusCollection('XY-1456a')
-        c.add_census(Census('xyz',22,'BB101'))
+        c = CensusCollection()
+        c.add_census(Census('xyz',22))
         self.assertEqual(c.get_number_of_census(),1)
         self.assertTrue(isinstance(c.get_census('xyz'),Census))
 
