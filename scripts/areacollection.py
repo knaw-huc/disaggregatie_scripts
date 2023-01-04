@@ -10,17 +10,6 @@ class AreaCollection:
     def __iter__(self):
         return self._area_coll.__iter__()
 
-    def __next(self):
-        if self._current_index < self.get_number_of_areas():
-            if self._current_index < len(self._lect):
-                member = self._lect[self._current_index] 
-            else:
-                member = self._stud[
-                    self._current_index - len(self._lect)]
-            self._current_index += 1
-            return member
-        raise StopIteration
-
     def add_area(self,area):
         self._area_coll[area.get_area_code()] = area
 

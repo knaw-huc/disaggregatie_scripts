@@ -11,6 +11,7 @@ class Area:
         for c in census_list:
             self._census_list.append(c)
         self._census_population = {}
+        self._ready = False
 
     def __str__(self):
         return f"area code: {self._area_code} - surface: {self._surface} - population: {self._population}"
@@ -37,9 +38,14 @@ class Area:
     def set_census_population(self,census_code,population_count):
         self._census_population[census_code] = population_count
 
+    def set_code_ready(self):
+        self._ready = True
+
     def set_population(self,population):
         self._population = population
 
     def set_surface(self,surface):
         self._surface = float(surface)
-    
+ 
+    def ready(self):
+        return self._ready

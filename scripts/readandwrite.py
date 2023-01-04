@@ -32,7 +32,17 @@ def read_census(inputfile,all_census = CensusCollection()):
         reader = csv.DictReader(csvfile,delimiter='\t')
         teller = 0
         for row in reader:
-            all_census.add_census(Census(row['UUID'],float(row['PRIMARY_UNIT'])))
+            census_code = row['UUID']
+            try:
+                counted = float(row['PRIMARY_UNIT'])
+                if all_census.has_census(census_code):
+                    census = all_census.get_census(census_code)
+                    census.set_counted(counted)
+                else:
+                    all_census.add_census(Census(census_code,counted))
+            except:
+                pass
+                #counted = 0.0
     return all_census
 
 
