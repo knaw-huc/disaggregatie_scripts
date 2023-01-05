@@ -22,6 +22,22 @@ def calc_dist(years):
             res[k].append(y[1])
     return res
 
+
+# fill in the population values for all the area/year pairs which don't have a 'shared census';
+# i.e. a census that only counted that area in a perticular year
+def fill_single_values(all_census,areas):
+    cl = all_census.get_census_coll()
+    for census_code in cl:
+        census = cl[census_code]
+        counted = census.get_counted()
+        if census.number_of_areas()==1:
+            area_code = census.get_areas()[0]
+            area = areas.get_area(area_code)
+            area.set_census_population(census_code,counted)
+            area.set_code_ready(census_code)
+
+
+# the result matrix is used to write data to an xlsx
 def build_matrix(areas,years):
     result = []
     for area_code in areas:
