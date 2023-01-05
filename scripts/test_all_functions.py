@@ -80,7 +80,12 @@ class TestCensus(unittest.TestCase):
         self.assertEqual(c.get_counted(),100)
         c.add_area('BR10000')
         self.assertEqual(c.get_areas(),['BR10000'])
+        self.assertEqual(c.number_of_areas(),1)
         self.assertEqual(f'{c}',"census code: xyz -  counted: 100.0 - areas: ['BR10000']")
+        c.add_area('BR10000')
+        self.assertEqual(c.number_of_areas(),1)
+        c.add_area('BR10010')
+        self.assertEqual(c.number_of_areas(),2)
 
 class TestCensusCollection(unittest.TestCase):
 

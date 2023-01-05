@@ -42,7 +42,9 @@ def read_census(inputfile,all_census = CensusCollection()):
                     all_census.add_census(Census(census_code,counted))
             except:
                 pass
-                #counted = 0.0
+                # census has no value filled in:
+                # their was no census for this area in this year:
+                # ignore
     return all_census
 
 
