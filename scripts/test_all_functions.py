@@ -51,18 +51,26 @@ class TestArea(unittest.TestCase):
         b = Area('Z',2)
         self.assertEqual(a.get_area_code(),'X')
         self.assertEqual(a.get_surface(),1.0)
-        self.assertEqual(f'{a}','area code: X - surface: 1.0 - population: 0.0')
+        self.assertEqual(f'{a}','area code: X - surface: 1.0')
         self.assertEqual(b.get_area_code(),'Z')
         self.assertEqual(b.get_surface(),2.0)
-        self.assertEqual(f'{b}','area code: Z - surface: 2.0 - population: 0.0')
+        self.assertEqual(f'{b}','area code: Z - surface: 2.0')
 
-    def test_multiply_implementations(self):
+    def test_multiple_implementations(self):
         a = Area('X',1)
         b = Area('Z',2)
         a.add_census_code('BR0011')
         b.add_census_code('BR0012')
         self.assertEqual(len(a.get_census_list()),1)
         self.assertEqual(len(b.get_census_list()),1)
+
+    def test_census_ready(self):
+        a = Area('X',1)
+        a.add_census_code('BR0011')
+        a.add_census_code('BR0012')
+        a.set_code_ready('BR0011')
+        self.assertTrue(a.ready('BR0011'))
+        self.assertFalse(a.ready('BR0012'))
 
 class TestCensus(unittest.TestCase):
 
