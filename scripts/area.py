@@ -33,8 +33,14 @@ class Area:
     def get_census_list(self):
         return self._census_list
 
+    def has_census_list(self):
+        return len(self._census_list)>0
+
     def get_census_population(self,census_code):
-        return self._census_population[census_code]
+        try:
+            return self._census_population[census_code]
+        except:
+            return ''
 
     def set_census_population(self,census_code,population_count):
         self._census_population[census_code] = population_count
@@ -43,4 +49,7 @@ class Area:
         self._ready[census_code] = True
 
     def ready(self,census_code):
-        return self._ready[census_code]
+        try:
+            return self._ready[census_code]
+        except:
+            return False

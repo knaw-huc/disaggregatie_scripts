@@ -30,5 +30,5 @@ class Census:
         self._counted = counted
 
     def __str__(self):
-        return f"census code: {self._census_code} -  counted: {self._counted} - areas: {self._areas}"
+        return f"census code: {self._census_code} - counted: {self._counted} - areas: {self._areas}"
 

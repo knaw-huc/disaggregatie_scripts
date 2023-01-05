@@ -7,6 +7,7 @@ from censuscollection import CensusCollection
 import collections
 import csv
 import os.path
+import pandas as pd
 
 
 def read_surfaces(filename,areas=AreaCollection()):
@@ -26,6 +27,9 @@ def read_surfaces(filename,areas=AreaCollection()):
 
 def read_census(inputfile,all_census = CensusCollection()):
     basename = os.path.basename(inputfile).split('.')[0]
+    debug = basename == 'census_ME1544a'
+    if debug:
+        print('Debug is True')
     #coll_name = basename
     #all_census = CensusCollection(coll_name)
     with open(inputfile, newline='') as csvfile:
@@ -33,6 +37,8 @@ def read_census(inputfile,all_census = CensusCollection()):
         teller = 0
         for row in reader:
             census_code = row['UUID']
+            if debug:
+                print(f"{census_code}: {row['PRIMARY_UNIT']}")
             try:
                 counted = float(row['PRIMARY_UNIT'])
                 if all_census.has_census(census_code):
@@ -41,6 +47,8 @@ def read_census(inputfile,all_census = CensusCollection()):
                 else:
                     all_census.add_census(Census(census_code,counted))
             except:
+                if debug:
+                    print('what is wrong?')
                 pass
                 # census has no value filled in:
                 # their was no census for this area in this year:
@@ -80,40 +88,40 @@ def create_link_dict(f):
     return areas,all_censuses,year_header,years
 
 
-def make_xlsx(columns,data,new_res,uitvoer='default.xlsx',small=False):
+def make_xlsx(columns,data,uitvoer='default.xlsx',small=False):
     # if uitvoer=='default.xlsx':
     #   add date_time
-    new_rows = []
-    for k,v in new_res.items():
-        new_row = [k]
-        new_row.append(v['surface'])
-        for year in years:
-            try:
-                new_row.append(v[year]['number'])
-                if not small:
-                    new_row.append(v[year]['status'])
-                    new_row.append(v[year]['census'])
-                    try:
-                        new_row.append(v[year]['orig'])
-                    except:
-                        new_row.append('')
-            except:
-                new_row.append('')
-                if not small:
-                    new_row.append('')
-                    new_row.append('')
-                    new_row.append('')
-        new_rows.append(new_row)
-    columns = ['Area','km2']
-    for year in years:
-        columns.append(f'{year_header[year]}')
-        if not small:
-            columns.append(f'stat')
-            columns.append(f'census')
-            columns.append(f'orig')
+#    new_rows = []
+#    for k,v in new_res.items():
+#        new_row = [k]
+#        new_row.append(v['surface'])
+#        for year in years:
+#            try:
+#                new_row.append(v[year]['number'])
+#                if not small:
+#                    new_row.append(v[year]['status'])
+#                    new_row.append(v[year]['census'])
+#                    try:
+#                        new_row.append(v[year]['orig'])
+#                    except:
+#                        new_row.append('')
+#            except:
+#                new_row.append('')
+#                if not small:
+#                    new_row.append('')
+#                    new_row.append('')
+#                    new_row.append('')
+#        new_rows.append(new_row)
+#    columns = ['Area','km2']
+#    for year in years:
+#        columns.append(f'{year_header[year]}')
+#        if not small:
+#            columns.append(f'stat')
+#            columns.append(f'census')
+#            columns.append(f'orig')
     print(len(columns))
-    print(len(new_rows[0]))
-    print(new_rows[0])
-    new_df = pd.DataFrame(new_rows, columns=columns)
+    print(len(data[0]))
+    print(data[0])
+    new_df = pd.DataFrame(data, columns=columns)
     new_df.to_excel(uitvoer)
 

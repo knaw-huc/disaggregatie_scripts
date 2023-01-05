@@ -29,3 +29,6 @@ class AreaCollection:
     def items(self):
         return self._area_coll.items()
 
+    def set_census_population(self,area_code,census_code,population_count):
+        self._area_coll[area_code].set_census_population(census_code,population_count)
+
