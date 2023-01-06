@@ -28,10 +28,10 @@ class TestReadWrite(unittest.TestCase):
 
     def test_read_census(self):
         inputdir = "Dummy_dataset_disaggregatie"
-        header = 'BR1374a'
+        header = 'BR1472a'
         inputfile = f'{inputdir}/census_{header}.txt'
         res = rw.read_census(inputfile)
-        self.assertEqual(res.get_number_of_census(),617)
+        self.assertEqual(res.get_number_of_census(),610)
 
 class TestCalculations(unittest.TestCase):
 
@@ -75,13 +75,14 @@ class TestArea(unittest.TestCase):
 class TestCensus(unittest.TestCase):
 
     def test_class_census(self):
-        c = Census('xyz',100)
+        c = Census('xyz')
+        c.set_counted(100)
         self.assertEqual(c.get_census_code(),'xyz')
-        self.assertEqual(c.get_counted(),100)
+        self.assertEqual(c.get_counted(),100.0)
         c.add_area('BR10000')
         self.assertEqual(c.get_areas(),['BR10000'])
         self.assertEqual(c.number_of_areas(),1)
-        self.assertEqual(f'{c}',"census code: xyz -  counted: 100.0 - areas: ['BR10000']")
+        self.assertEqual(f'{c}',"census code: xyz - counted: 100.0 - areas: ['BR10000']")
         c.add_area('BR10000')
         self.assertEqual(c.number_of_areas(),1)
         c.add_area('BR10010')
@@ -91,7 +92,7 @@ class TestCensusCollection(unittest.TestCase):
 
     def test_class_censuscollection(self):
         c = CensusCollection()
-        c.add_census(Census('xyz',22))
+        c.add_census(Census('xyz'))
         self.assertEqual(c.get_number_of_census(),1)
         self.assertTrue(isinstance(c.get_census('xyz'),Census))
 

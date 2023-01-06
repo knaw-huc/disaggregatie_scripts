@@ -5,6 +5,8 @@ import re
 def find_year(census):
     return int(re.search(r'\d{4}',census).group(0))
 
+
+#
 def calc_dist(years):
     result = {}
     for year in years:
@@ -26,15 +28,18 @@ def calc_dist(years):
 # fill in the population values for all the area/year pairs which don't have a 'shared census';
 # i.e. a census that only counted that area in a perticular year
 def fill_single_values(all_census,areas):
-    cl = all_census.get_census_coll()
-    for census_code in cl:
-        census = cl[census_code]
-        counted = census.get_counted()
-        if census.number_of_areas()==1:
-            area_code = census.get_areas()[0]
-            area = areas.get_area(area_code)
-            area.set_census_population(census_code,counted)
-            area.set_code_ready(census_code)
+    for census_code in all_census:
+        census = all_census.get_census(census_code)
+        try:
+            counted = census.get_counted()
+            if census.number_of_areas()==1:
+                area_code = census.get_areas()[0]
+                area = areas.get_area(area_code)
+                area.set_census_population(census_code,counted)
+                area.set_code_ready(census_code)
+        except:
+            # empty census
+            pass
 
 
 # the result matrix is used to write data to an xlsx
