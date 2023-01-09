@@ -44,19 +44,30 @@ def fill_single_values(all_census,areas):
 
 
 # the result matrix is used to write data to an xlsx
-def build_matrix(areas,years):
+def build_matrix(areas,years,all_census,compact=True):
     result = []
     for area_code in areas:
         area = areas.get_area(area_code)
         if area.has_census_list():
             cl = area.get_census_list()
-            row = [''] * (2 + len(years))
+            if compact:
+                row = [''] * (2 + len(years))
+            else:
+                row = [''] * (2 + 3 * len(years))
             row[0] = area_code
             row[1] = area.get_surface()
             for census_code in cl:
                 year = find_year(census_code)
-                idx = years.index(year)
-                row[idx+2] = area.get_census_population(census_code)
+                if compact:
+                    idx = years.index(year)
+                    row[idx+2] = area.get_census_population(census_code)
+                else:
+                    idx = 3 * years.index(year)
+                    row[idx+2] = area.get_census_population(census_code)
+                    row[idx+3] = census_code
+                    row[idx+4] = all_census.get_census(census_code).get_counted()
+                if not compact:
+                    pass
             result.append(row)
     return result
 
@@ -73,6 +84,7 @@ def calc_population_spread(all_census,areas,ready_c_s,census):
     area_pop_known = {}
     for c_1 in list(set(ready_c_s)):
         c_2 = all_census.get_census(c_1)
+        #c_2_id = c_2.get_census_id()
         for a_1 in c_2.get_areas():
             a_2 = areas.get_area(a_1)
             if a_1 in census.get_areas():

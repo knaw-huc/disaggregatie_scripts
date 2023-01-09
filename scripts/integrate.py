@@ -197,13 +197,19 @@ if __name__ == '__main__':
         search_multiple(all_census,areas,number)
 
 
-
-    result = calc.build_matrix(areas,years)
+    compact = False
+    result = calc.build_matrix(areas,years,all_census,compact)
     headers = ['area','surface']
 
     for year in years:
         headers.append(year_header[year])
-    rw.make_xlsx(headers,result,uitvoer='new_try_01.xlsx')
+        if not compact:
+            headers.append(year)
+            headers.append('orig')
+
+    stderr(f'headers: {len(headers)}')
+    stderr(f'result: {len(result[0])}')
+    rw.make_xlsx(headers,result,uitvoer='new_try_02.xlsx')
 
 
     end_prog()
