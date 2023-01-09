@@ -60,6 +60,7 @@ def build_matrix(areas,years):
             result.append(row)
     return result
 
+
 # calculate the population spread of a census on the areas it contains,
 # based on the values of an other year, where the values are already determined,
 # either by a previous calculation, or an initial count.
@@ -70,15 +71,38 @@ def calc_population_spread(all_census,areas,ready_c_s,census):
     counted = census.get_counted()
     c_1_tot_population = 0.0
     area_pop_known = {}
-    for c_1 in ready_c_s:
+    for c_1 in list(set(ready_c_s)):
         c_2 = all_census.get_census(c_1)
         for a_1 in c_2.get_areas():
             a_2 = areas.get_area(a_1)
-            area_pop_known[a_1] = a_2.get_census_population(c_1)
-            c_1_tot_population += a_2.get_census_population(c_1)
+            if a_1 in census.get_areas():
+                area_pop_known[a_1] = a_2.get_census_population(c_1)
+                c_1_tot_population += a_2.get_census_population(c_1)
     for a in census.get_areas():
         res = counted * area_pop_known[a] / c_1_tot_population
         area = areas.get_area(a)
         area.set_census_population(census_code,res)
         area.set_code_ready(census_code)
+
+
+# calculate populations for a specific census-'year' based on the area surfaces
+def calculate_using_surface(census_id,all_census,areas):
+    census_list = all_census.get_all_from_census_id(census_id)
+    for census in census_list:
+        census_code = census.get_census_code()
+        census_areas = census.get_areas()
+        te_doen = []
+        for area_code in census_areas:
+            area = areas.get_area(area_code)
+            if not area.ready(census_code):
+                te_doen.append(area)
+        if len(te_doen)>0:
+            tot_surface = 0.0
+            for area in te_doen:
+                tot_surface += area.get_surface()
+            for area in te_doen:
+                res = census.get_counted() * area.get_surface() / tot_surface
+                area.set_census_population(census_code,res)
+                area.set_code_ready(census_code)
+
 
