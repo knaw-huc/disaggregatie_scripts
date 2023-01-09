@@ -29,3 +29,10 @@ class CensusCollection:
     def get_number_of_census(self):
         return len(self._census_coll.keys())
 
+    def get_max_areas(self):
+        res = 0
+        for census_code in self._census_coll.keys():
+            num_areas = self.get_census(census_code).number_of_areas()
+            if num_areas>res:
+                res = num_areas
+        return res
