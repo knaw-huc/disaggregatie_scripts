@@ -7,6 +7,7 @@ from census import Census
 from censuscollection import CensusCollection
 from datetime import datetime
 import glob
+import json
 import readandwrite as rw
 import pprint as pp
 import sys
@@ -105,15 +106,30 @@ def stderr(text,nl='\n'):
     sys.stderr.write(f"{text}{nl}")
 
 
-def arguments():
-    ap = argparse.ArgumentParser(description='Disaggregatie census files')
+def get_config(config_file):
+    with open(config_file) as f:
+        config = json.load(f)
+        res = config.get('inputdir','Dummy_dataset_disaggregatie')
+        stderr(f'res: {res}')
+        res = config.get('outputfile','default.xlsx')
+        stderr(f'res: {res}')
+        res = config.get('km2','Dummy km2.xlsx')
+        stderr(f'res: {res}')
+        res = config.get('links','Dummy links.xlsx')
+        stderr(f'res: {res}')
+        res = config.get('census','census_*.txt')
+        stderr(f'res: {res}')
+
+
+
+def arguments(ap):
+    ap.add_argument('-c', '--config',
+                    help="config",
+                    default = "config.json")
     ap.add_argument('-i', '--inputdir',
-                    help="inputdir",
-                    default = "Dummy_dataset_disaggregatie"
-                    )
+                    help="inputdir")
     ap.add_argument('-o', '--outputfile',
-                    help="outputfile",
-                    default="new_try_02.xlsx")
+                    help="outputfile")
     ap.add_argument("-d", "--debug",
                     help="debug - default: false",
                     action="store_true")
@@ -124,27 +140,57 @@ def arguments():
 if __name__ == '__main__':
     stderr(datetime.today().strftime("start: %H:%M:%S"))
 
-    args = arguments()
-    inputdir = args["inputdir"]
-    outputfile = args["outputfile"]
+    ap = argparse.ArgumentParser(description='Disaggregatie census files')
+    args = arguments(ap)
+    config_file = args['config']
+    with open(config_file) as f:
+        config = json.load(f)
+        inputdir = config.get('inputdir','')
+        outputfile = config.get('outputfile','')
+        surface_file = config.get('surface_file','')
+        links_file = config.get('links_file','')
+        census_files = config.get('census_files','')
+    if inputdir=='':
+        try:
+            inputdir = args["inputdir"]
+        except:
+            inputdir = ''
+            pass
+    if outputfile=='':
+        try:
+            outputfile = args["outputfile"]
+        except:
+            pass
     debug = args["debug"]
+
+    stderr(f'''
+reading from directory: {inputdir}
+census files matching:  {census_files}
+surfaces file:          {surface_file}
+links file:             {links_file}
+writing to:             {outputfile}
+debug is {debug}
+''')
+    if '' or None in [inputdir, outputfile, surface_file, links_file, census_files]:
+        stderr('Please fill in all the necessary values in the config file')
+        end_prog(1)
 
     # read census files: census code and population count
     all_census = CensusCollection()
-    all_files = glob.glob(f"{inputdir}/census_*.txt")
+    all_files = glob.glob(f"{inputdir}/{census_files}")
     for f in all_files:
         rw.read_census(f,all_census,debug=debug)
 
     # read file linking area with census
-    f = f'{inputdir}/Dummy links.txt'
+    f = f'{inputdir}/{links_file}'
     areas,all_census,year_header,years = rw.create_link_dict(f,all_census,debug=debug)
 
-#    br1374a = all_census.get_census(census_BR1374a)
-    with open('inspect_census_BR1374a.txt','w') as uitvoer:
-        for census_code in all_census:
-            census = all_census.get_census(census_code)
-            if census.get_census_id() == 'census_BR1374a':
-                uitvoer.write(f'{census}\n')
+    if debug:
+        with open('inspect_census_BR1374a.txt','w') as uitvoer:
+            for census_code in all_census:
+                census = all_census.get_census(census_code)
+                if census.get_census_id() == 'census_BR1374a':
+                    uitvoer.write(f'{census}\n')
     
     census_id_list = list(map(lambda x: f'census_{x}' ,year_header.values()))
     search_order = calc.calc_dist(census_id_list)
@@ -162,7 +208,7 @@ if __name__ == '__main__':
             stderr('not OK')
             stderr(all_census.__name__)
 
-    f = f'{inputdir}/Dummy km2.txt'
+    f = f'{inputdir}/{surface_file}'
     areas = rw.read_surfaces(f,areas)
     if debug:
         stderr(f'num of areas: {areas.get_number_of_areas()}')
@@ -173,14 +219,14 @@ if __name__ == '__main__':
         stderr(f"{areas.get_area('BR0010B5')}")
         stderr(f"{len(areas.get_area('BR0010B5').get_census_list())}")
         stderr(f"{areas.get_area('BR0010B5').get_census_list()}")
-    census = all_census.get_census('census_BR1374a_628')
     if debug:
+        census = all_census.get_census('census_BR1374a_628')
         stderr(census)
 
     calc.fill_single_values(all_census,areas)
 
-    area = areas.get_area('ME0010A')
     if debug:
+        area = areas.get_area('ME0010A')
         stderr(area)
         stderr(area.ready('census_ME1544a_1'))
         stderr(area.get_census_population('census_ME1544a_1'))
