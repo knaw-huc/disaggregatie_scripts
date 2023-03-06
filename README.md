@@ -7,13 +7,15 @@ Use:
 Add an extra `-d` to get lots of debug output.
 
 Example config file:
-```{
+```
+{
     "inputdir" : "inputdir",
     "outputfile" : "output.xlsx",
     "surface_file" : "surface_file.txt",
     "links_file" : "links_file.txt",
     "census_files" : "census_*.txt"
-}```
+}
+```
 
 `census_files` is given as a matching pattern.
 
