@@ -2,7 +2,7 @@
 
 Use:
 
-```python integrate.py -c configfile -i inputdir -o outputfile```
+```python integrate.py -c configfile [-i inputdir] [-o outputfile]```
 
 Add an extra `-d` to get lots of debug output.
 
