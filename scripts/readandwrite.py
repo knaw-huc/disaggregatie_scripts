@@ -25,12 +25,12 @@ def read_surfaces(filename,areas=AreaCollection()):
     return areas
 
 
-def read_census(inputfile,all_census=CensusCollection()):
+def read_census(inputfile,all_census=CensusCollection(),debug=False):
     with open(inputfile, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         for row in reader:
             census_code = row['UUID']
-            debug = census_code=='census_BR1472a_611'
+            # debug = census_code=='census_BR1472a_611'
             census_id = row['CENSUS_ID']
             try:
                 counted = float(row['PRIMARY_UNIT'])
@@ -54,7 +54,7 @@ def read_census(inputfile,all_census=CensusCollection()):
     return all_census
 
 
-def create_link_dict(f,all_census=CensusCollection()):
+def create_link_dict(f,all_census=CensusCollection(),debug=False):
     areas = AreaCollection()
     year_header = {}
     with open(f, newline='') as csvfile:
@@ -71,7 +71,7 @@ def create_link_dict(f,all_census=CensusCollection()):
             for col_head in headers:
                 if col_head!='SHORT_ID':
                     census_code = row[col_head]
-                    debug = census_code=='census_BR1472a_611'
+                    # debug = census_code=='census_BR1472a_611'
                     if debug:
                         print('census_BR1472a_611 found!')
                     if census_code != '':

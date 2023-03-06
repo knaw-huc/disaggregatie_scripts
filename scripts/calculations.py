@@ -72,12 +72,19 @@ def build_matrix(areas,years,all_census,compact=True):
     return result
 
 
+def stderr(text,nl='\n'):
+    sys.stderr.write(f"{text}{nl}")
+
 # calculate the population spread of a census on the areas it contains,
 # based on the values of an other year, where the values are already determined,
 # either by a previous calculation, or an initial count.
-def calc_population_spread(all_census,areas,ready_c_s,census):
+def calc_population_spread(all_census,areas,ready_c_s,census,debug=False):
     num_of_areas = len(ready_c_s)
     census_code = census.get_census_code()
+    if debug:
+        stderr('start calculating:')
+        stderr(f'{ready_c_s} can be used to calculate')
+        stderr(f'areas {census.get_areas()} in {census_code}')
     census_id = census.get_census_id()
     counted = census.get_counted()
     c_1_tot_population = 0.0
@@ -88,10 +95,19 @@ def calc_population_spread(all_census,areas,ready_c_s,census):
         for a_1 in c_2.get_areas():
             a_2 = areas.get_area(a_1)
             if a_1 in census.get_areas():
+                if debug:
+                    stderr(f'{a_1}: {a_2.get_census_population(c_1)}')
                 area_pop_known[a_1] = a_2.get_census_population(c_1)
                 c_1_tot_population += a_2.get_census_population(c_1)
+    if debug:
+        stderr(area_pop_known)
+        stderr(c_1_tot_population)
+        stderr(f'census: {counted}')
     for a in census.get_areas():
         res = counted * area_pop_known[a] / c_1_tot_population
+        if debug:
+            stderr(f'a: {a}')
+            stderr(f'res: {res}')
         area = areas.get_area(a)
         area.set_census_population(census_code,res)
         area.set_code_ready(census_code)
