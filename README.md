@@ -19,5 +19,5 @@ Example config file:
 
 `census_files` is given as a matching pattern.
 
-`inputdir` and `outputfile` can be left out and given on the prompt (after `-i` and `-o`).
+`inputdir` and `outputfile` can be left out of the config file and given on the prompt (after `-i` and `-o`).
 
