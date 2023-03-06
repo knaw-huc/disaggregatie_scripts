@@ -2,4 +2,6 @@
 
 Use:
 
-```python integrate -i inputdir -o outputfile```
+```python integrate.py -i inputdir -o outputfile```
+
+Add an extra `-d` to get losts of debug output.
