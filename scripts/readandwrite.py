@@ -72,8 +72,8 @@ def create_link_dict(f,all_census=CensusCollection(),debug=False):
                 if col_head!='SHORT_ID':
                     census_code = row[col_head]
                     # debug = census_code=='census_BR1472a_611'
-                    if debug:
-                        print('census_BR1472a_611 found!')
+                    #if debug:
+                    #    print('census_BR1472a_611 found!')
                     if census_code != '':
                         if all_census.has_census(census_code):
                             areas.add_census_to_area(area_id,census_code)

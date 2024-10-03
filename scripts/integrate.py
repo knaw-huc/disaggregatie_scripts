@@ -106,22 +106,6 @@ def stderr(text,nl='\n'):
     sys.stderr.write(f"{text}{nl}")
 
 
-def get_config(config_file):
-    with open(config_file) as f:
-        config = json.load(f)
-        res = config.get('inputdir','Dummy_dataset_disaggregatie')
-        stderr(f'res: {res}')
-        res = config.get('outputfile','default.xlsx')
-        stderr(f'res: {res}')
-        res = config.get('km2','Dummy km2.xlsx')
-        stderr(f'res: {res}')
-        res = config.get('links','Dummy links.xlsx')
-        stderr(f'res: {res}')
-        res = config.get('census','census_*.txt')
-        stderr(f'res: {res}')
-
-
-
 def arguments(ap):
     ap.add_argument('-c', '--config',
                     help="config",
