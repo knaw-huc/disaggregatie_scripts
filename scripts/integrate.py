@@ -168,13 +168,6 @@ debug is {debug}
     # read file linking area with census
     f = f'{inputdir}/{links_file}'
     areas,all_census,year_header,years = rw.create_link_dict(f,all_census,debug=debug)
-
-    if debug:
-        with open('inspect_census_BR1374a.txt','w') as uitvoer:
-            for census_code in all_census:
-                census = all_census.get_census(census_code)
-                if census.get_census_id() == 'census_BR1374a':
-                    uitvoer.write(f'{census}\n')
     
     census_id_list = list(map(lambda x: f'census_{x}' ,year_header.values()))
     search_order = calc.calc_dist(census_id_list)
@@ -197,30 +190,14 @@ debug is {debug}
     if debug:
         stderr(f'num of areas: {areas.get_number_of_areas()}')
         stderr(f' number of census: {all_census.get_number_of_census()}')
-        stderr(f"{areas.get_area('BR0010B6')}")
-        stderr(f"{len(areas.get_area('BR0010B6').get_census_list())}")
-        stderr(f"{areas.get_area('BR0010B6').get_census_list()}")
-        stderr(f"{areas.get_area('BR0010B5')}")
-        stderr(f"{len(areas.get_area('BR0010B5').get_census_list())}")
-        stderr(f"{areas.get_area('BR0010B5').get_census_list()}")
-    if debug:
-        census = all_census.get_census('census_BR1374a_628')
-        stderr(census)
 
     calc.fill_single_values(all_census,areas)
-
-    if debug:
-        area = areas.get_area('ME0010A')
-        stderr(area)
-        stderr(area.ready('census_ME1544a_1'))
-        stderr(area.get_census_population('census_ME1544a_1'))
 
     max_areas = all_census.get_max_areas()
     if debug:
         stderr(f'max_areas: {max_areas}')
     for number in range(2,max_areas+1):
         search_multiple(all_census,areas,number)
-
 
     largest_perc = 0.0
     best_census_id = ''
