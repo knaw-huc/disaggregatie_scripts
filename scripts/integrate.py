@@ -182,7 +182,7 @@ debug is {debug}
 
     # read file linking area with census
     f = f'{inputdir}/{links_file}'
-    areas,all_census,year_header,years = rw.create_link_dict(f,all_census,debug=debug)
+    areas,all_census,year_header,years = rw.create_link_dict(f,short_id_links,all_census,debug)
     
     census_id_list = list(map(lambda x: f'census_{x}' ,year_header.values()))
     search_order = calc.calc_dist(census_id_list)

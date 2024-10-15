@@ -56,22 +56,22 @@ def read_census(inputfile, uid, census_id_header, year_header, primary_unit,
     return all_census
 
 
-def create_link_dict(f,all_census=CensusCollection(),debug=False):
+def create_link_dict(f,short_id,all_census=CensusCollection(),debug=False):
     areas = AreaCollection()
     year_header = {}
     with open(f, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         headers = reader.fieldnames
         for header in headers:
-            if header!='SHORT_ID':
+            if header!=short_id:
                 year_header[calc.find_year(header)] = header
         years = sorted(year_header.keys())
         for row in reader:
-            area_id = row['SHORT_ID']
+            area_id = row[short_id]
             area = Area(area_id)
             areas.add_area(area)
             for col_head in headers:
-                if col_head!='SHORT_ID':
+                if col_head!=short_id:
                     census_code = row[col_head]
                     if census_code and census_code != '':
                         if all_census.has_census(census_code):
