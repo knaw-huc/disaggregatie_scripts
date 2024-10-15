@@ -25,19 +25,21 @@ def read_surfaces(filename,areas=AreaCollection()):
     return areas
 
 
-def read_census(inputfile,all_census=CensusCollection(),debug=False):
+def read_census(inputfile, uid, census_id_header, year_header, primary_unit,
+        all_census=CensusCollection(), debug=False):
     with open(inputfile, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         for row in reader:
-            census_code = row['UUID']
-            # debug = census_code=='census_BR1472a_611'
-            census_id = row['CENSUS_ID']
+            census_code = row[uid]
+            census_id = row[census_id_header]
             try:
-                counted = float(row['PRIMARY_UNIT'])
+                counted = float(row[primary_unit])
+                year = row[year_header]
                 if not all_census.has_census(census_code):
                     census = Census(census_code)
                     census.set_census_id(census_id)
                     census.set_counted(counted)
+                    census.set_year(year)
                     all_census.add_census(census)
                 else:
                     # if census exists there is something funny going on
@@ -63,7 +65,7 @@ def create_link_dict(f,all_census=CensusCollection(),debug=False):
         for header in headers:
             if header!='SHORT_ID':
                 year_header[calc.find_year(header)] = header
-        years = sorted(year_header.keys())
+       years = sorted(year_header.keys())
         for row in reader:
             area_id = row['SHORT_ID']
             area = Area(area_id)
@@ -71,10 +73,7 @@ def create_link_dict(f,all_census=CensusCollection(),debug=False):
             for col_head in headers:
                 if col_head!='SHORT_ID':
                     census_code = row[col_head]
-                    # debug = census_code=='census_BR1472a_611'
-                    #if debug:
-                    #    print('census_BR1472a_611 found!')
-                    if census_code != '':
+                    if census_code and census_code != '':
                         if all_census.has_census(census_code):
                             areas.add_census_to_area(area_id,census_code)
                             census = all_census.get_census(census_code)

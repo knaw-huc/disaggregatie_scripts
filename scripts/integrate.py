@@ -134,6 +134,14 @@ if __name__ == '__main__':
         surface_file = config.get('surface_file','')
         links_file = config.get('links_file','')
         census_files = config.get('census_files','')
+        uid = config.get('uid','UUID')
+        census_id_header = config.get('census_id','CENSUS_ID')
+        year_header = config.get('year','YEAR')
+        primary_unit = config.get('primary_unit','PRIMARY_UNIT')
+        short_id_surface = config.get('short_id_surface','SHORT_ID')
+        km_2 = config.get('km2','KM2')
+        short_id_links = config.get('short_id_links','SHORT_ID')
+
     if inputdir=='':
         try:
             inputdir = args["inputdir"]
@@ -153,6 +161,13 @@ census files matching:  {census_files}
 surfaces file:          {surface_file}
 links file:             {links_file}
 writing to:             {outputfile}
+uid:                    {uid}
+census_id:              {census_id_header}
+year:                   {year_header}
+primary_unit:           {primary_unit}
+short_id_surface:       {short_id_surface}
+km_2:                   {km_2}
+short_id_links:"        {short_id_links}
 debug is {debug}
 ''')
     if '' or None in [inputdir, outputfile, surface_file, links_file, census_files]:
@@ -163,7 +178,7 @@ debug is {debug}
     all_census = CensusCollection()
     all_files = glob.glob(f"{inputdir}/{census_files}")
     for f in all_files:
-        rw.read_census(f,all_census,debug=debug)
+        rw.read_census(f, uid, census_id_header, year_header, primary_unit, all_census, debug)
 
     # read file linking area with census
     f = f'{inputdir}/{links_file}'
