@@ -201,7 +201,7 @@ debug is {debug}
             stderr(all_census.__name__)
 
     f = f'{inputdir}/{surface_file}'
-    areas = rw.read_surfaces(f,areas)
+    areas = rw.read_surfaces(f,short_id_surface,km_2,areas)
     if debug:
         stderr(f'num of areas: {areas.get_number_of_areas()}')
         stderr(f' number of census: {all_census.get_number_of_census()}')

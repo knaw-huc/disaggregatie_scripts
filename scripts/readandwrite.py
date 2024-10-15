@@ -10,12 +10,12 @@ import os.path
 import pandas as pd
 
 
-def read_surfaces(filename,areas=AreaCollection()):
+def read_surfaces(filename,short_id,km_2,areas=AreaCollection()):
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile,delimiter='\t')
         for row in reader:
-            id = row['SHORT_ID']
-            surface = row['KM2']
+            id = row[short_id]
+            surface = row[km_2]
             if areas.has_area(id):
                 areas.get_area(id).set_surface(surface)
             else:
@@ -65,7 +65,7 @@ def create_link_dict(f,all_census=CensusCollection(),debug=False):
         for header in headers:
             if header!='SHORT_ID':
                 year_header[calc.find_year(header)] = header
-       years = sorted(year_header.keys())
+        years = sorted(year_header.keys())
         for row in reader:
             area_id = row['SHORT_ID']
             area = Area(area_id)
