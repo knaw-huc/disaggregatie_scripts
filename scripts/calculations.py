@@ -99,6 +99,9 @@ def calc_population_spread(all_census,areas,ready_c_s,census,debug=False):
                     stderr(f'{a_1}: {a_2.get_census_population(c_1)}')
                 area_pop_known[a_1] = a_2.get_census_population(c_1)
                 c_1_tot_population += a_2.get_census_population(c_1)
+    if c_1_tot_population == 0.0:
+        stderr(f'Population is zero in area(s) {census.get_areas()} for census(ses) {ready_c_s}')
+        return
     if debug:
         stderr(area_pop_known)
         stderr(c_1_tot_population)
