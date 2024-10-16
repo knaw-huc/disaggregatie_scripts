@@ -65,7 +65,6 @@ def create_link_dict(f,short_id,all_census=CensusCollection(),debug=False):
         for header in headers:
             if header!=short_id:
                 year_header[calc.find_year(header)] = header
-        years = sorted(year_header.keys())
         for row in reader:
             area_id = row[short_id]
             area = Area(area_id)
@@ -78,6 +77,11 @@ def create_link_dict(f,short_id,all_census=CensusCollection(),debug=False):
                             areas.add_census_to_area(area_id,census_code)
                             census = all_census.get_census(census_code)
                             census.add_area(area_id)
+                            year = census.get_year()
+                            if not year in year_header.keys():
+                                year_header[year] = census.get_census_id()
+    print(year_header)
+    years = sorted(year_header.keys())
     return areas,all_census,year_header,years
 
 

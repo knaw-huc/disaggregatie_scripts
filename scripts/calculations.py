@@ -57,7 +57,8 @@ def build_matrix(areas,years,all_census,compact=True):
             row[0] = area_code
             row[1] = area.get_surface()
             for census_code in cl:
-                year = find_year(census_code)
+                #year = find_year(census_code)
+                year = all_census.get_census(census_code).get_year()
                 if compact:
                     idx = years.index(year)
                     row[idx+2] = area.get_census_population(census_code)

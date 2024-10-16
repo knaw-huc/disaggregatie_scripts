@@ -37,6 +37,12 @@ class Census:
     def set_counted(self,counted):
         self._counted = float(counted)
 
+    def set_year(self,year):
+        self._year = int(year)
+
+    def get_year(self):
+        return self._year
+
     def __str__(self):
-        return f"census code: {self._census_code} - counted: {self.get_counted()} - areas: {self._areas}"
+        return f"census code: {self._census_code} - counted: {self.get_counted()} - areas: {self._areas} - year: {self._year}"
 

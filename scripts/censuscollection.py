@@ -6,7 +6,7 @@ import collections
 class CensusCollection:
 
     def __init__(self):
-        self._census_coll = collections.defaultdict(dict)
+        self._census_coll = collections.defaultdict(Census)
 
     def __iter__(self):
         return self._census_coll.__iter__()
@@ -37,6 +37,9 @@ class CensusCollection:
     def get_number_of_census(self):
         return len(self._census_coll.keys())
 
+    def get_keys(self):
+        return self._census_coll.keys()
+
     def get_max_areas(self):
         res = 0
         for census_code in self._census_coll.keys():
@@ -56,6 +59,8 @@ class CensusCollection:
                 if area.ready(census.get_census_code()):
                     count_ready += 1
                 count_all += 1
+        if count_all == 0.0:
+            return 0.0
         res = count_ready * 100 / count_all
         return res
 
